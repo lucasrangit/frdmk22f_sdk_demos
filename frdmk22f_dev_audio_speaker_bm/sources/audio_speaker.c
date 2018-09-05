@@ -45,6 +45,7 @@
 #include "fsl_device_registers.h"
 #include "clock_config.h"
 #include "board.h"
+#include "peripherals.h"
 #include "fsl_debug_console.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -1154,6 +1155,7 @@ void main(void)
     BOARD_I2C_ReleaseBus();
     BOARD_I2C_ConfigurePins();
     BOARD_InitDebugConsole();
+    BOARD_InitBootPeripherals();
 
     APPInit();
 

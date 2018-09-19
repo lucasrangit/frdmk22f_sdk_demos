@@ -1142,20 +1142,28 @@ void APPInit(void)
 
 void USB_AudioCodecTask(void)
 {
+//#if defined(DEBUG)
+//	if (g_UsbDeviceAudioSpeaker.codecTask) {
+//        uint8_t status, jack_status;
+//        MAX_ReadReg(&codecHandle, MAX9867_STATUS, &status);
+//        MAX_ReadReg(&codecHandle, MAX9867_JACKSTATUS, &jack_status);
+//        PRINTF("Codec Status: 0x%02x\nJack Status: 0x%02x\n", status, jack_status);
+//    }
+//#endif
     if (g_UsbDeviceAudioSpeaker.codecTask & MUTE_CODEC_TASK)
     {
-        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
+//        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
         g_UsbDeviceAudioSpeaker.codecTask &= ~MUTE_CODEC_TASK;
     }
     if (g_UsbDeviceAudioSpeaker.codecTask & UNMUTE_CODEC_TASK)
     {
-        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
+//        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
         g_UsbDeviceAudioSpeaker.codecTask &= ~UNMUTE_CODEC_TASK;
     }
     if (g_UsbDeviceAudioSpeaker.codecTask & VOLUME_CHANGE_TASK)
     {
-        usb_echo("Set Cur Volume : %x\r\n",
-                 (uint16_t)(g_UsbDeviceAudioSpeaker.curVolume[1] << 8U) | g_UsbDeviceAudioSpeaker.curVolume[0]);
+//        usb_echo("Set Cur Volume : %x\r\n",
+//                 (uint16_t)(g_UsbDeviceAudioSpeaker.curVolume[1] << 8U) | g_UsbDeviceAudioSpeaker.curVolume[0]);
         g_UsbDeviceAudioSpeaker.codecTask &= ~VOLUME_CHANGE_TASK;
     }
 }

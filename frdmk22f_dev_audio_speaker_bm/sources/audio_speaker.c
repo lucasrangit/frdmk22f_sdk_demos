@@ -166,10 +166,17 @@ usb_audio_speaker_struct_t g_UsbDeviceAudioSpeaker = {
     .attach = 0U,
     .copyProtect = 0x01U,
     .curMute = 0x00U,
+#if defined(BOARD_USE_CODEC_SGTL)
     .curVolume = {0x00U, 0x1fU},
     .minVolume = {0x00U, 0x00U},
     .maxVolume = {0x00U, 0x43U},
     .resVolume = {0x01U, 0x00U},
+#elif defined(BOARD_USE_CODEC_MAX)
+    .curVolume = {0xFFU, 0x7FU},
+    .minVolume = {0x00U, 0x00U},
+    .maxVolume = {0xFFU, 0x7FU},
+    .resVolume = {0x01U, 0x00U},
+#endif
     .curBass = 0x00U,
     .minBass = 0x80U,
     .maxBass = 0x7FU,
@@ -291,6 +298,31 @@ void BOARD_Codec_Init()
     boardCodecConfig.codecConfig = &codecConfig;
     CODEC_Init(&codecHandle, &boardCodecConfig);
     CODEC_SetFormat(&codecHandle, audioFormat.masterClockHz, audioFormat.sampleRate_Hz, audioFormat.bitWidth);
+}
+
+static status_t BOARD_Codec_SetMute(bool mute)
+{
+#if defined(BOARD_USE_CODEC_MAX)
+    return MAX_SetMute(&codecHandle, 0, mute);
+#endif
+}
+
+static long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+static status_t BOARD_Codec_SetVolume(uint32_t volume)
+{
+#if defined(BOARD_USE_CODEC_MAX)
+	/*
+	 * Map USB Audio volume range of non-negative values 0 to +128 dB (0x0000-0x7FFF)
+	 * to codec -84 to +6 dB  (0x3F-0x00). NB: it is reversed.
+	 */
+	uint8_t volume_codec = (0x3F - map(volume, 0, 0x7FFF, 0, 0x3F)) & 0xFF;
+
+	return MAX_SetVolume(&codecHandle, 0, volume_codec);
+#endif
 }
 
 void SAI_USB_Audio_TxInit(I2S_Type *SAIBase)
@@ -1154,17 +1186,20 @@ void USB_AudioCodecTask(void)
     {
 //        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
         g_UsbDeviceAudioSpeaker.codecTask &= ~MUTE_CODEC_TASK;
+        BOARD_Codec_SetMute(true);
     }
     if (g_UsbDeviceAudioSpeaker.codecTask & UNMUTE_CODEC_TASK)
     {
 //        usb_echo("Set Cur Mute : %x\r\n", g_UsbDeviceAudioSpeaker.curMute);
         g_UsbDeviceAudioSpeaker.codecTask &= ~UNMUTE_CODEC_TASK;
+        BOARD_Codec_SetMute(false);
     }
     if (g_UsbDeviceAudioSpeaker.codecTask & VOLUME_CHANGE_TASK)
     {
-//        usb_echo("Set Cur Volume : %x\r\n",
-//                 (uint16_t)(g_UsbDeviceAudioSpeaker.curVolume[1] << 8U) | g_UsbDeviceAudioSpeaker.curVolume[0]);
+        uint16_t volume = (g_UsbDeviceAudioSpeaker.curVolume[1] << 8U) | g_UsbDeviceAudioSpeaker.curVolume[0];
+//    	usb_echo("Set Cur Volume : %x\r\n", volume);
         g_UsbDeviceAudioSpeaker.codecTask &= ~VOLUME_CHANGE_TASK;
+        BOARD_Codec_SetVolume(volume);
     }
 }
 

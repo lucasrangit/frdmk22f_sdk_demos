@@ -41,16 +41,15 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
 /*! @brief The board name */
-#define BOARD_NAME "TWR-K22F120M"
+#define BOARD_NAME "FRDM-K22F"
 
 /*! @brief The UART to use for debug messages. */
 #define BOARD_USE_UART
 #define BOARD_DEBUG_UART_TYPE DEBUG_CONSOLE_DEVICE_TYPE_UART
 #define BOARD_DEBUG_UART_BASEADDR (uint32_t) UART1
 #define BOARD_DEBUG_UART_INSTANCE 1U
-#define BOARD_DEBUG_UART_CLKSRC kCLOCK_CoreSysClk
+#define BOARD_DEBUG_UART_CLKSRC SYS_CLK
 #define BOARD_DEBUG_UART_CLK_FREQ CLOCK_GetCoreSysClkFreq()
 #define BOARD_UART_IRQ UART1_RX_TX_IRQn
 #define BOARD_UART_IRQ_HANDLER UART1_RX_TX_IRQHandler
@@ -59,10 +58,15 @@
 #define BOARD_DEBUG_UART_BAUDRATE 115200
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
+/*! @brief The bubble level demo information */
+#define BOARD_FXOS8700_ADDR 0x1C
+#define BOARD_ACCEL_ADDR BOARD_FXOS8700_ADDR
+#define BOARD_ACCEL_BAUDRATE 100
+#define BOARD_ACCEL_I2C_BASEADDR I2C0
+#define BOARD_ACCEL_I2C_CLOCK_FREQ CLOCK_GetFreq(I2C0_CLK_SRC)
+
 /*! @brief The i2c instance used for i2c connection by default */
 #define BOARD_I2C_BASEADDR I2C0
-#define BOARD_ACCEL_I2C_BASEADDR I2C1
-#define BOARD_ACCEL_I2C_CLOCK_FREQ CLOCK_GetFreq(I2C1_CLK_SRC)
 
 /*! @brief The CMP instance/channel used for board. */
 #define BOARD_CMP_BASEADDR CMP0
@@ -71,81 +75,78 @@
 /*! @brief The rtc instance used for board. */
 #define BOARD_RTC_FUNC_BASEADDR RTC
 
-/*! @brief The i2c instance used for board. */
-#define BOARD_SAI_DEMO_I2C_BASEADDR I2C0
-
-/*! @brief If connected the TWR_MEM, this is spi sd card */
-#define SDCARD_CARD_WRITE_PROTECTION_GPIO GPIOA
-#define SDCARD_CARD_WRITE_PROTECTION_GPIO_PORT PORTA
-#define SDCARD_CARD_WRITE_PROTECTION_GPIO_PIN 17U
-#define SDCARD_SPI_HW_INSTANCE 1U
-#define SDCARD_CD_GPIO_IRQ_HANDLER PORTC_IRQHandler
-
 /*! @brief Define the port interrupt number for the board switches */
 #ifndef BOARD_SW3_GPIO
-#define BOARD_SW3_GPIO GPIOC
+#define BOARD_SW3_GPIO GPIOB
 #endif
 #ifndef BOARD_SW3_PORT
-#define BOARD_SW3_PORT PORTC
+#define BOARD_SW3_PORT PORTB
 #endif
 #ifndef BOARD_SW3_GPIO_PIN
-#define BOARD_SW3_GPIO_PIN 7U
+#define BOARD_SW3_GPIO_PIN 17
 #endif
-#define BOARD_SW3_IRQ PORTC_IRQn
-#define BOARD_SW3_IRQ_HANDLER PORTC_IRQHandler
+#define BOARD_SW3_IRQ PORTB_IRQn
+#define BOARD_SW3_IRQ_HANDLER PORTB_IRQHandler
 #define BOARD_SW3_NAME "SW3"
 
-#ifndef BOARD_SW1_GPIO
-#define BOARD_SW1_GPIO GPIOC
+#ifndef BOARD_SW2_GPIO
+#define BOARD_SW2_GPIO GPIOC
 #endif
-#ifndef BOARD_SW1_PORT
-#define BOARD_SW1_PORT PORTC
+#ifndef BOARD_SW2_PORT
+#define BOARD_SW2_PORT PORTC
 #endif
-#ifndef BOARD_SW1_GPIO_PIN
-#define BOARD_SW1_GPIO_PIN 6U
+#ifndef BOARD_SW2_GPIO_PIN
+#define BOARD_SW2_GPIO_PIN 1
 #endif
-#define BOARD_SW1_IRQ PORTC_IRQn
-#define BOARD_SW1_IRQ_HANDLER PORTC_IRQHandler
-#define BOARD_SW1_NAME "SW1"
+#define BOARD_SW2_IRQ PORTC_IRQn
+#define BOARD_SW2_IRQ_HANDLER PORTC_IRQHandler
+#define BOARD_SW2_NAME "SW2"
 
-#define LLWU_SW_GPIO BOARD_SW3_GPIO
-#define LLWU_SW_PORT BOARD_SW3_PORT
-#define LLWU_SW_GPIO_PIN BOARD_SW3_GPIO_PIN
-#define LLWU_SW_IRQ BOARD_SW3_IRQ
-#define LLWU_SW_IRQ_HANDLER BOARD_SW3_IRQ_HANDLER
-#define LLWU_SW_NAME BOARD_SW3_NAME
+#define LLWU_SW_GPIO BOARD_SW2_GPIO
+#define LLWU_SW_PORT BOARD_SW2_PORT
+#define LLWU_SW_GPIO_PIN BOARD_SW2_GPIO_PIN
+#define LLWU_SW_IRQ BOARD_SW2_IRQ
+#define LLWU_SW_IRQ_HANDLER BOARD_SW2_IRQ_HANDLER
+#define LLWU_SW_NAME BOARD_SW2_NAME
 
 /* Board led color mapping */
 #define LOGIC_LED_ON 0U
 #define LOGIC_LED_OFF 1U
-#ifndef BOARD_LED_ORANGE_GPIO
-#define BOARD_LED_ORANGE_GPIO GPIOD
+#ifndef BOARD_LED_RED_GPIO
+#define BOARD_LED_RED_GPIO GPIOA
 #endif
-#define BOARD_LED_ORANGE_GPIO_PORT PORTD
-#ifndef BOARD_LED_ORANGE_GPIO_PIN
-#define BOARD_LED_ORANGE_GPIO_PIN 6U
+#define BOARD_LED_RED_GPIO_PORT PORTA
+#ifndef BOARD_LED_RED_GPIO_PIN
+#define BOARD_LED_RED_GPIO_PIN 1U
 #endif
 #ifndef BOARD_LED_GREEN_GPIO
-#define BOARD_LED_GREEN_GPIO GPIOD
+#define BOARD_LED_GREEN_GPIO GPIOA
 #endif
-#define BOARD_LED_GREEN_GPIO_PORT PORTD
+#define BOARD_LED_GREEN_GPIO_PORT PORTA
 #ifndef BOARD_LED_GREEN_GPIO_PIN
-#define BOARD_LED_GREEN_GPIO_PIN 4U
+#define BOARD_LED_GREEN_GPIO_PIN 2U
 #endif
 #ifndef BOARD_LED_BLUE_GPIO
 #define BOARD_LED_BLUE_GPIO GPIOD
 #endif
 #define BOARD_LED_BLUE_GPIO_PORT PORTD
 #ifndef BOARD_LED_BLUE_GPIO_PIN
-#define BOARD_LED_BLUE_GPIO_PIN 7U
+#define BOARD_LED_BLUE_GPIO_PIN 5U
 #endif
-#ifndef BOARD_LED_YELLOW_GPIO
-#define BOARD_LED_YELLOW_GPIO GPIOD
-#endif
-#define BOARD_LED_YELLOW_GPIO_PORT PORTD
-#ifndef BOARD_LED_YELLOW_GPIO_PIN
-#define BOARD_LED_YELLOW_GPIO_PIN 5U
-#endif
+
+#define BOARD_ARDUINO_INT_IRQ (PORTB_IRQn)
+#define BOARD_ARDUINO_I2C_IRQ (I2C0_IRQn)
+#define BOARD_ARDUINO_I2C_INDEX (0)
+
+#define LED_RED_INIT(output)                                                 \
+    GPIO_PinWrite(BOARD_LED_RED_GPIO, BOARD_LED_RED_GPIO_PIN, output); \
+    BOARD_LED_RED_GPIO->PDDR |= (1U << BOARD_LED_RED_GPIO_PIN) /*!< Enable target LED_RED */
+#define LED_RED_ON() \
+    GPIO_PortClear(BOARD_LED_RED_GPIO, 1U << BOARD_LED_RED_GPIO_PIN) /*!< Turn on target LED_RED */
+#define LED_RED_OFF() \
+    GPIO_PortSet(BOARD_LED_RED_GPIO, 1U << BOARD_LED_RED_GPIO_PIN) /*!< Turn off target LED_RED */
+#define LED_RED_TOGGLE() \
+    GPIO_PortToggle(BOARD_LED_RED_GPIO, 1U << BOARD_LED_RED_GPIO_PIN) /*!< Toggle on target LED_RED */
 
 #define LED_GREEN_INIT(output)                                                   \
     GPIO_PinWrite(BOARD_LED_GREEN_GPIO, BOARD_LED_GREEN_GPIO_PIN, output); \
@@ -167,38 +168,36 @@
 #define LED_BLUE_TOGGLE() \
     GPIO_PortToggle(BOARD_LED_BLUE_GPIO, 1U << BOARD_LED_BLUE_GPIO_PIN) /*!< Toggle on target LED_BLUE */
 
-#define LED_YELLOW_INIT(output)                                                    \
-    GPIO_PinWrite(BOARD_LED_YELLOW_GPIO, BOARD_LED_YELLOW_GPIO_PIN, output); \
-    BOARD_LED_YELLOW_GPIO->PDDR |= (1U << BOARD_LED_YELLOW_GPIO_PIN) /*!< Enable target LED_YELLOW */
-#define LED_YELLOW_ON() \
-    GPIO_PortClear(BOARD_LED_YELLOW_GPIO, 1U << BOARD_LED_YELLOW_GPIO_PIN) /*!< Turn on target LED_YELLOW */
-#define LED_YELLOW_OFF() \
-    GPIO_PortSet(BOARD_LED_YELLOW_GPIO, 1U << BOARD_LED_YELLOW_GPIO_PIN) /*!< Turn off target LED_YELLOW */
-#define LED_YELLOW_TOGGLE() \
-    GPIO_PortToggle(BOARD_LED_YELLOW_GPIO, 1U << BOARD_LED_YELLOW_GPIO_PIN) /*!< Toggle on target LED_YELLOW */
-
-#define LED_ORANGE_INIT(output)                                                    \
-    GPIO_PinWrite(BOARD_LED_ORANGE_GPIO, BOARD_LED_ORANGE_GPIO_PIN, output); \
-    BOARD_LED_ORANGE_GPIO->PDDR |= (1U << BOARD_LED_ORANGE_GPIO_PIN) /*!< Enable target LED_ORANGE */
-#define LED_ORANGE_ON() \
-    GPIO_PortClear(BOARD_LED_ORANGE_GPIO, 1U << BOARD_LED_ORANGE_GPIO_PIN) /*!< Turn on target LED_ORANGE */
-#define LED_ORANGE_OFF() \
-    GPIO_PortSet(BOARD_LED_ORANGE_GPIO, 1U << BOARD_LED_ORANGE_GPIO_PIN) /*!< Turn off target LED_ORANGE */
-#define LED_ORANGE_TOGGLE() \
-    GPIO_PortToggle(BOARD_LED_ORANGE_GPIO, 1U << BOARD_LED_ORANGE_GPIO_PIN) /*!< Toggle on target LED_ORANGE */
-
-#define BOARD_ACCEL_I2C_BASEADDR I2C1
-#define BOARD_ACCEL_I2C_CLK_SRC I2C1_CLK_SRC
+#define BOARD_ACCEL_I2C_BASEADDR I2C0
+#define BOARD_ACCEL_I2C_CLK_SRC CLOCK_GetFreq(kCLOCK_BusClk)
 
 #define BOARD_CODEC_I2C_BASEADDR I2C0
 #define BOARD_CODEC_I2C_CLOCK_FREQ CLOCK_GetFreq(kCLOCK_BusClk)
 
+/* ERPC DSPI configuration */
+#define ERPC_BOARD_DSPI_BASEADDR SPI0
+#define ERPC_BOARD_DSPI_BAUDRATE 500000U
+#define ERPC_BOARD_DSPI_CLKSRC DSPI0_CLK_SRC
+#define ERPC_BOARD_DSPI_CLK_FREQ CLOCK_GetFreq(DSPI0_CLK_SRC)
+#define ERPC_BOARD_DSPI_INT_GPIO GPIOB
+#define ERPC_BOARD_DSPI_INT_PORT PORTB
+#define ERPC_BOARD_DSPI_INT_PIN 2U
+#define ERPC_BOARD_DSPI_INT_PIN_IRQ PORTB_IRQn
+#define ERPC_BOARD_DSPI_INT_PIN_IRQ_HANDLER PORTB_IRQHandler
+
 /* @brief The SDSPI disk PHY configuration. */
-#define BOARD_SDSPI_SPI_BASE SPI1_BASE /*!< SPI base address for SDSPI */
-#define BOARD_SDSPI_CD_GPIO_BASE GPIOE /*!< Port related to card detect pin for SDSPI */
+#define BOARD_SDSPI_SPI_BASE SPI0_BASE /*!< SPI base address for SDSPI */
+#define BOARD_SDSPI_CD_GPIO_BASE GPIOB /*!< Port related to card detect pin for SDSPI */
 #ifndef BOARD_SDSPI_CD_PIN
-#define BOARD_SDSPI_CD_PIN 6U /*!< Card detect pin for SDSPI */
+#define BOARD_SDSPI_CD_PIN 16U /*!< Card detect pin for SDSPI */
 #endif
+#define BOARD_SDSPI_CD_LOGIC_RISING /*!< Logic of card detect pin for SDSPI */
+
+/* DAC base address */
+#define BOARD_DAC_BASEADDR DAC0
+
+/* Board accelerometer driver */
+#define BOARD_ACCEL_FXOS
 
 #if defined(__cplusplus)
 extern "C" {

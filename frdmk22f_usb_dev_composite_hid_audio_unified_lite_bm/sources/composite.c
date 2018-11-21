@@ -59,7 +59,11 @@
 #endif
 
 
+#if defined(BOARD_USE_CODEC_SGTL)
 #include "fsl_sgtl5000.h"
+#elif defined(BOARD_USE_CODEC_MAX)
+#include "fsl_max9867.h"
+#endif
 #include "fsl_common.h"
 #include "pin_mux.h"
 #include "fsl_gpio.h"
@@ -71,6 +75,7 @@
  * Definitions
  ******************************************************************************/
 #define SGTL_ON_BOARD_OSCILLATOR_FREQUENCY (24576000)
+#define MAX_ON_BOARD_OSCILLATOR_FREQUENCY (12288000)
 #define DEMO_SAI_BITWIDTH (kSAI_WordWidth16bits)
 #define SAI_TxIRQHandler I2S0_Tx_IRQHandler
 #define SAI_RxIRQHandler I2S0_Rx_IRQHandler
@@ -252,11 +257,18 @@ void BOARD_I2C_ReleaseBus(void)
 
 void BOARD_Codec_Init()
 {
+#if defined(BOARD_USE_CODEC_SGTL)
     sgtl_config_t codecConfig;
     codecConfig.bus = kSGTL_BusI2S;
     codecConfig.master_slave = true;
     codecConfig.route = kSGTL_RoutePlaybackandRecord;
-    
+#elif defined(BOARD_USE_CODEC_MAX)
+    max_config_t codecConfig;
+    codecConfig.bus = kMAX_BusI2S;
+    codecConfig.master_slave = false;
+    codecConfig.route = kMAX_RoutePlayback;
+#endif
+
     boardCodecConfig.codecConfig = &codecConfig;
     CODEC_Init(&codecHandle, &boardCodecConfig);
     CODEC_SetFormat(&codecHandle, audioFormat.masterClockHz, audioFormat.sampleRate_Hz, audioFormat.bitWidth);
@@ -264,16 +276,20 @@ void BOARD_Codec_Init()
 
 void BOARD_SetCodecMuteUnmute(bool mute)
 {
+#if defined(BOARD_USE_CODEC_SGTL)
     SGTL_SetMute(&codecHandle, kSGTL_ModuleDAC, mute);
+#elif defined(BOARD_USE_CODEC_MAX)
+    MAX_SetMute(&codecHandle, 0, mute);
+#endif
 }
 
 void SAI_USB_Audio_TxInit(I2S_Type *SAIBase)
 {
     SAI_TxGetDefaultConfig(&saiTxConfig);
 
-    saiTxConfig.masterSlave = kSAI_Slave;
+    saiTxConfig.masterSlave = kSAI_Master;
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
-    saiTxConfig.mclkOutputEnable = false;
+    saiTxConfig.mclkOutputEnable = true;
 #endif
 
     SAI_TxInit(SAIBase, &saiTxConfig);
@@ -283,16 +299,15 @@ void SAI_USB_Audio_RxInit(I2S_Type *SAIBase)
 {
     SAI_RxGetDefaultConfig(&saiRxConfig);
 
-#if 1
-    saiRxConfig.masterSlave = kSAI_Slave;
+    saiRxConfig.masterSlave = kSAI_Master;
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
-    saiRxConfig.mclkOutputEnable = false;
-#endif
+    saiRxConfig.mclkOutputEnable = true;
 #endif
 
     SAI_RxInit(SAIBase, &saiRxConfig);
 }
 
+#if defined(BOARD_USE_CODEC_SGTL)
 void SGTL_Config_Audio_Formats(uint32_t samplingRate)
 {
     /* Configure the audio audioFormat */
@@ -307,12 +322,32 @@ void SGTL_Config_Audio_Formats(uint32_t samplingRate)
     audioFormat.watermark = FSL_FEATURE_SAI_FIFO_COUNT / 2U;
 #endif
 }
+#elif defined(BOARD_USE_CODEC_MAX)
+void MAX_Config_Audio_Formats(uint32_t samplingRate)
+{
+    /* Configure the audio audioFormat */
+    audioFormat.bitWidth = kSAI_WordWidth16bits;
+    audioFormat.channel = 0U;
+    audioFormat.sampleRate_Hz = samplingRate;
+
+    audioFormat.masterClockHz = MAX_ON_BOARD_OSCILLATOR_FREQUENCY;
+    audioFormat.protocol = saiTxConfig.protocol;
+    audioFormat.stereo = kSAI_Stereo;
+#if defined(FSL_FEATURE_SAI_FIFO_COUNT) && (FSL_FEATURE_SAI_FIFO_COUNT > 1)
+    audioFormat.watermark = FSL_FEATURE_SAI_FIFO_COUNT / 2U;
+#endif
+}
+#endif
 
 void BOARD_USB_Audio_TxRxInit(uint32_t samplingRate)
 {
     SAI_USB_Audio_TxInit(BOARD_DEMO_SAI);
     SAI_USB_Audio_RxInit(BOARD_DEMO_SAI);
+#if defined(BOARD_USE_CODEC_SGTL)
     SGTL_Config_Audio_Formats(samplingRate);
+#elif defined(BOARD_USE_CODEC_MAX)
+    MAX_Config_Audio_Formats(samplingRate);
+#endif
 }
 
 #if AUDIO_DMA_EDMA_MODE

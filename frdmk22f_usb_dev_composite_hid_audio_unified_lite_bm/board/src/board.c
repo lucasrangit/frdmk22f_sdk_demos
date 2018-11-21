@@ -39,19 +39,29 @@
 #if defined(SDK_I2C_BASED_COMPONENT_USED) && SDK_I2C_BASED_COMPONENT_USED
 #include "fsl_i2c.h"
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
-#if defined BOARD_USE_CODEC
+#if defined(BOARD_USE_CODEC_SGTL)
 #include "fsl_sgtl5000.h"
+#elif defined(BOARD_USE_CODEC_MAX)
+#include <fsl_max9867.h>
 #endif
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-#if defined BOARD_USE_CODEC
+#if defined(BOARD_USE_CODEC_SGTL)
 codec_config_t boardCodecConfig = {
     .I2C_SendFunc = BOARD_Codec_I2C_Send,
     .I2C_ReceiveFunc = BOARD_Codec_I2C_Receive,
     .op.Init = SGTL_Init,
     .op.Deinit = SGTL_Deinit,
     .op.SetFormat = SGTL_ConfigDataFormat
+};
+#elif defined(BOARD_USE_CODEC_MAX)
+codec_config_t boardCodecConfig = {
+    .I2C_SendFunc = BOARD_Codec_I2C_Send,
+    .I2C_ReceiveFunc = BOARD_Codec_I2C_Receive,
+    .op.Init = MAX_Init,
+    .op.Deinit = MAX_Deinit,
+    .op.SetFormat = MAX_ConfigDataFormat
 };
 #endif
 

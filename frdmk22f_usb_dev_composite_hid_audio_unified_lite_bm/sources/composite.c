@@ -303,6 +303,7 @@ void SAI_USB_Audio_RxInit(I2S_Type *SAIBase)
 #if defined(FSL_FEATURE_SAI_HAS_MCR) && (FSL_FEATURE_SAI_HAS_MCR)
     saiRxConfig.mclkOutputEnable = true;
 #endif
+    saiRxConfig.syncMode = kSAI_ModeSync;
 
     SAI_RxInit(SAIBase, &saiRxConfig);
 }

@@ -46,6 +46,7 @@ BOARD_InitPins:
   - {pin_num: '37', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE12/PTB2/I2C0_SCL/UART0_RTS_b/FTM0_FLT3}
   - {pin_num: '38', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE13/PTB3/I2C0_SDA/UART0_CTS_b/FTM0_FLT0}
   - {pin_num: '40', peripheral: GPIOB, signal: 'GPIO, 17', pin_signal: PTB17/SPI1_SIN/UART0_TX/FTM_CLKIN1/FB_AD16/EWM_OUT_b}
+  - {pin_num: '50', peripheral: I2S0, signal: RXD0, pin_signal: PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/FB_AD10/CMP0_OUT/FTM0_CH2}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -82,6 +83,9 @@ void BOARD_InitPins(void)
 
     /* PORTC3 (pin 46) is configured as I2S0_TX_BCLK */
     PORT_SetPinMux(PORTC, 3U, kPORT_MuxAlt6);
+
+    /* PORTC5 (pin 50) is configured as I2S0_RXD0 */
+    PORT_SetPinMux(PORTC, 5U, kPORT_MuxAlt4);
 
     /* PORTC8 (pin 53) is configured as I2S0_MCLK */
     PORT_SetPinMux(PORTC, 8U, kPORT_MuxAlt4);

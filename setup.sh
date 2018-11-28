@@ -58,7 +58,12 @@ SDK="FRDM-K22F-OM13588-2.4.1"
 SDK_FILE="${SDK}.zip"
 SDK_PATH="/home/vagrant/mcuxpresso/01/SDKPackages"
 
-if [[ -e ${DATA_DIR}/${SDK} ]]; then
+# TODO import SDK w/ mcu-boot
+# Download https://mcuxpresso.nxp.com/en/license?hash=3398b68c5611fedc1ec1fb180c6fb48e&hash_download=1
+#SDK_BOOT="SDK_2.4.1_FRDM-K22F"
+#SDK_BOOT_FILE="${SDK}.zip"
+
+if [[ -e ${DATA_DIR}/${SDK_FILE} ]]; then
 	sudo -u vagrant mkdir -p ${SDK_PATH}
 	sudo -u vagrant cp ${DATA_DIR}/${SDK_FILE} ${SDK_PATH}
 fi

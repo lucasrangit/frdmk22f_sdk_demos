@@ -44,6 +44,9 @@ Vagrant.configure("2") do |config|
     # Customize the amount of memory on the VM:
     vm.memory = "1024"
 
+    # Synchronize clock if the skew exceeds 1s
+    vm.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
+
     # Enable USB 2.0
     vm.customize ["modifyvm", :id, "--usb", "on"]
     vm.customize ["modifyvm", :id, "--usbehci", "on"]

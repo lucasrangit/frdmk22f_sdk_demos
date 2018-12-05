@@ -40,13 +40,13 @@ BOARD_InitPins:
   - {pin_num: '1', peripheral: UART1, signal: TX, pin_signal: ADC1_SE4a/PTE0/CLKOUT32K/SPI1_PCS1/UART1_TX/I2C1_SDA/RTC_CLKOUT}
   - {pin_num: '2', peripheral: UART1, signal: RX, pin_signal: ADC1_SE5a/PTE1/LLWU_P0/SPI1_SOUT/UART1_RX/I2C1_SCL/SPI1_SIN}
   - {pin_num: '53', peripheral: I2S0, signal: MCLK, pin_signal: ADC1_SE4b/CMP0_IN2/PTC8/FTM3_CH4/I2S0_MCLK/FB_AD7}
-  - {pin_num: '44', peripheral: I2S0, signal: TXD0, pin_signal: ADC0_SE15/PTC1/LLWU_P6/SPI0_PCS3/UART1_RTS_b/FTM0_CH0/FB_AD13/I2S0_TXD0/LPUART0_RTS_b}
   - {pin_num: '46', peripheral: I2S0, signal: TX_BCLK, pin_signal: CMP1_IN1/PTC3/LLWU_P7/SPI0_PCS1/UART1_RX/FTM0_CH2/CLKOUT/I2S0_TX_BCLK/LPUART0_RX}
   - {pin_num: '45', peripheral: I2S0, signal: TX_FS, pin_signal: ADC0_SE4b/CMP1_IN0/PTC2/SPI0_PCS2/UART1_CTS_b/FTM0_CH1/FB_AD12/I2S0_TX_FS/LPUART0_CTS_b}
   - {pin_num: '37', peripheral: I2C0, signal: SCL, pin_signal: ADC0_SE12/PTB2/I2C0_SCL/UART0_RTS_b/FTM0_FLT3}
   - {pin_num: '38', peripheral: I2C0, signal: SDA, pin_signal: ADC0_SE13/PTB3/I2C0_SDA/UART0_CTS_b/FTM0_FLT0}
   - {pin_num: '40', peripheral: GPIOB, signal: 'GPIO, 17', pin_signal: PTB17/SPI1_SIN/UART0_TX/FTM_CLKIN1/FB_AD16/EWM_OUT_b}
   - {pin_num: '50', peripheral: I2S0, signal: RXD0, pin_signal: PTC5/LLWU_P9/SPI0_SCK/LPTMR0_ALT2/I2S0_RXD0/FB_AD10/CMP0_OUT/FTM0_CH2}
+  - {pin_num: '28', peripheral: I2S0, signal: TXD0, pin_signal: PTA12/FTM1_CH0/I2S0_TXD0/FTM1_QD_PHA}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -59,12 +59,17 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
+    /* Port A Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortA);
     /* Port B Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortB);
     /* Port C Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortC);
     /* Port E Clock Gate Control: Clock enabled */
     CLOCK_EnableClock(kCLOCK_PortE);
+
+    /* PORTA12 (pin 28) is configured as I2S0_TXD0 */
+    PORT_SetPinMux(PORTA, 12U, kPORT_MuxAlt6);
 
     /* PORTB17 (pin 40) is configured as PTB17 */
     PORT_SetPinMux(PORTB, 17U, kPORT_MuxAsGpio);
@@ -74,9 +79,6 @@ void BOARD_InitPins(void)
 
     /* PORTB3 (pin 38) is configured as I2C0_SDA */
     PORT_SetPinMux(PORTB, 3U, kPORT_MuxAlt2);
-
-    /* PORTC1 (pin 44) is configured as I2S0_TXD0 */
-    PORT_SetPinMux(PORTC, 1U, kPORT_MuxAlt6);
 
     /* PORTC2 (pin 45) is configured as I2S0_TX_FS */
     PORT_SetPinMux(PORTC, 2U, kPORT_MuxAlt6);

@@ -43,6 +43,8 @@
 #include "fsl_sgtl5000.h"
 #elif defined(BOARD_USE_CODEC_MAX)
 #include <fsl_max9867.h>
+#elif defined(BOARD_USE_CODEC_WM8962)
+#include "fsl_wm8962.h"
 #endif
 /*******************************************************************************
  * Variables
@@ -62,6 +64,14 @@ codec_config_t boardCodecConfig = {
     .op.Init = MAX_Init,
     .op.Deinit = MAX_Deinit,
     .op.SetFormat = MAX_ConfigDataFormat
+};
+#elif defined(BOARD_USE_CODEC_WM8962)
+codec_config_t boardCodecConfig = {
+    .I2C_SendFunc = BOARD_Codec_I2C_Send,
+    .I2C_ReceiveFunc = BOARD_Codec_I2C_Receive,
+    .op.Init = WM8962_Init,
+    .op.Deinit = WM8962_Deinit,
+    .op.SetFormat = WM8962_ConfigDataFormat
 };
 #endif
 

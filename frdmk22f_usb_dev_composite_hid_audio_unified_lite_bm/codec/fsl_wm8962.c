@@ -31,8 +31,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "fsl_wm8962.h"
 #include "fsl_common.h"
+#include "fsl_debug_console.h"
+#include "fsl_wm8962.h"
 
 /*******************************************************************************
  * Definitations
@@ -45,19 +46,6 @@
 /*******************************************************************************
  * Variables
  ******************************************************************************/
-/*
- * wm8962 register cache
- * We can't read the WM8962 register space when we are
- * using 2 wire for device control, so we cache them instead.
- */
-static const uint16_t wm8962_reg[WM8962_CACHEREGNUM] = {
-    0x0097, 0x0097, 0x0000, 0x0000, 0x0000, 0x0008, 0x0000, 0x000a, 0x01c0, 0x0000, 0x00ff, 0x00ff, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x007b, 0x0100, 0x0032, 0x0000, 0x00c3, 0x00c3, 0x01c0, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0000, 0x0000, 0x0000, 0x0000, 0x0100, 0x0100, 0x0050, 0x0050, 0x0050, 0x0050, 0x0000, 0x0000, 0x0000, 0x0000,
-    0x0040, 0x0000, 0x0000, 0x0050, 0x0050, 0x0000, 0x0002, 0x0037, 0x004d, 0x0080, 0x0008, 0x0031, 0x0026, 0x00e9,
-};
-
-static uint16_t reg_cache[WM8962_CACHEREGNUM];
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -65,11 +53,16 @@ static uint16_t reg_cache[WM8962_CACHEREGNUM];
 status_t WM8962_Init(codec_handle_t *handle, void *wm8962_config)
 {
     wm8962_config_t *config = (wm8962_config_t *)wm8962_config;
-
-    memcpy(reg_cache, wm8962_reg, sizeof(wm8962_reg));
+    uint16_t val;
 
     /* Set WM8962 I2C address */
     handle->slaveAddress = WM8962_I2C_ADDR;
+
+    WM8962_ReadReg(handle, WM8962_RINVOL, &val);
+    PRINTF("WM8962 Rev 0x%02x\n", val);
+
+    WM8962_ReadReg(handle, WM8962_RESET, &val);
+    PRINTF("WM8962 ID 0x%02x\n", val);
 
     /* Reset the codec */
     WM8962_WriteReg(handle, WM8962_RESET, 0x00);
@@ -336,39 +329,39 @@ status_t WM8962_SetLeftInput(codec_handle_t *handle, wm8962_input_t input)
     {
         case kWM8962_InputSingleEndedMic:
             /* Only LMN1 enabled, LMICBOOST to 13db, LMIC2B enabled */
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINL_MASK | WM8962_POWER1_ADCL_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_LINPATH, 0x138);
             ret = WM8962_WriteReg(handle, WM8962_LINVOL, 0x117);
             break;
         case kWM8962_InputDifferentialMicInput2:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINL_MASK | WM8962_POWER1_ADCL_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_LINPATH, 0x178);
             ret = WM8962_WriteReg(handle, WM8962_LINVOL, 0x117);
             break;
         case kWM8962_InputDifferentialMicInput3:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINL_MASK | WM8962_POWER1_ADCL_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_LINPATH, 0x1B8);
             ret = WM8962_WriteReg(handle, WM8962_LINVOL, 0x117);
             break;
         case kWM8962_InputLineINPUT2:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINL_MASK | WM8962_POWER1_ADCL_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
-            WM8962_ReadReg(WM8962_INBMIX1, &val);
+            WM8962_ReadReg(handle, WM8962_INBMIX1, &val);
             val |= 0xE;
             ret = WM8962_WriteReg(handle, WM8962_INBMIX1, val);
             break;
         case kWM8962_InputLineINPUT3:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINL_MASK | WM8962_POWER1_ADCL_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
-            WM8962_ReadReg(WM8962_INBMIX1, &val);
+            WM8962_ReadReg(handle, WM8962_INBMIX1, &val);
             val |= 0x70;
             ret = WM8962_WriteReg(handle, WM8962_INBMIX1, val);
             break;
@@ -388,39 +381,39 @@ status_t WM8962_SetRightInput(codec_handle_t *handle, wm8962_input_t input)
     {
         case kWM8962_InputSingleEndedMic:
             /* Only LMN1 enabled, LMICBOOST to 13db, LMIC2B enabled */
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINR_MASK | WM8962_POWER1_ADCR_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_RINPATH, 0x138);
             ret = WM8962_WriteReg(handle, WM8962_RINVOL, 0x117);
             break;
         case kWM8962_InputDifferentialMicInput2:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINR_MASK | WM8962_POWER1_ADCR_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_RINPATH, 0x178);
             ret = WM8962_WriteReg(handle, WM8962_RINVOL, 0x117);
             break;
         case kWM8962_InputDifferentialMicInput3:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINR_MASK | WM8962_POWER1_ADCR_MASK | WM8962_POWER1_MICB_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
             ret = WM8962_WriteReg(handle, WM8962_RINPATH, 0x1B8);
             ret = WM8962_WriteReg(handle, WM8962_RINVOL, 0x117);
             break;
         case kWM8962_InputLineINPUT2:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINR_MASK | WM8962_POWER1_ADCR_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
-            WM8962_ReadReg(WM8962_INBMIX2, &val);
+            WM8962_ReadReg(handle, WM8962_INBMIX2, &val);
             val |= 0xE;
             ret = WM8962_WriteReg(handle, WM8962_INBMIX2, val);
             break;
         case kWM8962_InputLineINPUT3:
-            WM8962_ReadReg(WM8962_POWER1, &val);
+            WM8962_ReadReg(handle, WM8962_POWER1, &val);
             val |= (WM8962_POWER1_AINR_MASK | WM8962_POWER1_ADCR_MASK);
             ret = WM8962_WriteReg(handle, WM8962_POWER1, val);
-            WM8962_ReadReg(WM8962_INBMIX2, &val);
+            WM8962_ReadReg(handle, WM8962_INBMIX2, &val);
             val |= 0x70;
             ret = WM8962_WriteReg(handle, WM8962_INBMIX2, val);
             break;
@@ -526,19 +519,19 @@ uint32_t WM8962_GetVolume(codec_handle_t *handle, wm8962_module_t module)
     switch (module)
     {
         case kWM8962_ModuleADC:
-            WM8962_ReadReg(WM8962_LADC, &vol);
+            WM8962_ReadReg(handle, WM8962_LADC, &vol);
             vol &= 0xFF;
             break;
         case kWM8962_ModuleDAC:
-            WM8962_ReadReg(WM8962_LDAC, &vol);
+            WM8962_ReadReg(handle, WM8962_LDAC, &vol);
             vol &= 0xFF;
             break;
         case kWM8962_ModuleHP:
-            WM8962_ReadReg(WM8962_LOUT1, &vol);
+            WM8962_ReadReg(handle, WM8962_LOUT1, &vol);
             vol &= 0x7F;
             break;
         case kWM8962_ModuleLineOut:
-            WM8962_ReadReg(WM8962_LINVOL, &vol);
+            WM8962_ReadReg(handle, WM8962_LINVOL, &vol);
             vol &= 0x3F;
             break;
         default:
@@ -701,7 +694,7 @@ status_t WM8962_SetJackDetect(codec_handle_t *handle, bool isEnabled)
     uint8_t retval = 0;
     uint16_t val = 0;
 
-    WM8962_ReadReg(WM8962_ADDCTL2, &val);
+    WM8962_ReadReg(handle, WM8962_ADDCTL2, &val);
 
     if (isEnabled)
     {
@@ -719,42 +712,29 @@ status_t WM8962_SetJackDetect(codec_handle_t *handle, bool isEnabled)
 
 status_t WM8962_WriteReg(codec_handle_t *handle, uint16_t reg, uint16_t val)
 {
-    uint8_t cmd, buff;
-    uint8_t retval = 0;
+    uint8_t retval = kStatus_Success;
 
-    /* The register address */
-    cmd = (reg << 1) | ((val >> 8U) & 0x0001U);
-    /* Data */
-    buff = val & 0xFF;
-
-    retval = CODEC_I2C_WriteReg(handle->slaveAddress, kCODEC_RegAddr16Bit, cmd, kCODEC_RegWidth16Bit, buff,
+    retval = CODEC_I2C_WriteReg(handle->slaveAddress, kCODEC_RegAddr16Bit, reg, kCODEC_RegWidth16Bit, val,
                                 handle->I2C_SendFunc);
-
-    if (retval == kStatus_Success)
-    {
-        reg_cache[reg] = val;
-    }
 
     return retval;
 }
 
-status_t WM8962_ReadReg(uint16_t reg, uint16_t *val)
+status_t WM8962_ReadReg(codec_handle_t *handle, uint16_t reg, uint16_t *val)
 {
-    if (reg >= WM8962_CACHEREGNUM)
-    {
-        return kStatus_InvalidArgument;
-    }
+    status_t retval = kStatus_Success;
 
-    *val = reg_cache[reg];
+    retval = CODEC_I2C_ReadReg(handle->slaveAddress, kCODEC_RegAddr16Bit, reg, kCODEC_RegWidth16Bit, val,
+                               handle->I2C_ReceiveFunc);
 
-    return kStatus_Success;
+    return retval;
 }
 
 status_t WM8962_ModifyReg(codec_handle_t *handle, uint16_t reg, uint16_t mask, uint16_t val)
 {
     uint8_t retval = 0;
     uint16_t reg_val = 0;
-    retval = WM8962_ReadReg(reg, &reg_val);
+    retval = WM8962_ReadReg(handle, reg, &reg_val);
     if (retval != kStatus_Success)
     {
         return kStatus_Fail;

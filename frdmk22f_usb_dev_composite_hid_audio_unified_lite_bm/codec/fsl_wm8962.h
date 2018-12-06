@@ -430,7 +430,7 @@ status_t WM8962_WriteReg(codec_handle_t *handle, uint16_t reg, uint16_t val);
  * @param reg The register address in WM8962.
  * @param val Value written to.
  */
-status_t WM8962_ReadReg(uint16_t reg, uint16_t *val);
+status_t WM8962_ReadReg(codec_handle_t *handle, uint16_t reg, uint16_t *val);
 
 /*!
  * @brief Modify some bits in the register using I2C.

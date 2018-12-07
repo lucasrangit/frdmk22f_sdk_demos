@@ -53,16 +53,23 @@
 status_t WM8962_Init(codec_handle_t *handle, void *wm8962_config)
 {
     wm8962_config_t *config = (wm8962_config_t *)wm8962_config;
-    uint16_t val;
+    uint16_t val = 0;
 
     /* Set WM8962 I2C address */
     handle->slaveAddress = WM8962_I2C_ADDR;
 
     WM8962_ReadReg(handle, WM8962_RINVOL, &val);
-    PRINTF("WM8962 Rev 0x%02x\n", val);
+    uint8_t rev = ((val >> 9) & 0x7);
+    PRINTF("WM8962 Rev 0x%02x %c\n", rev, 'A' + rev);
 
     WM8962_ReadReg(handle, WM8962_RESET, &val);
-    PRINTF("WM8962 ID 0x%02x\n", val);
+    uint16_t id = val;
+    PRINTF("WM8962 ID 0x%02x\n", id);
+
+    if (id != WM8962_CHIP_ID) {
+        PRINTF("WM8962 Not detected\n", id);
+        return kStatus_Fail;
+    }
 
     /* Reset the codec */
     WM8962_WriteReg(handle, WM8962_RESET, 0x00);

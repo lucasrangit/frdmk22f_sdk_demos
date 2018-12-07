@@ -207,8 +207,12 @@
 #define WM8962_POWER3_LOMIX_SHIFT 0x03
 #define WM8962_POWER3_ROMIX_MASK 0x04
 #define WM8962_POWER3_ROMIX_SHIFT 0x02
+
 /* @brief WM8962 I2C address. */
 #define WM8962_I2C_ADDR 0x1A
+
+/* @brief WM8962 Chip ID. */
+#define WM8962_CHIP_ID 0x6243
 
 /*! @brief Modules in WM8962 board. */
 typedef enum _WM8962_module
